@@ -80,15 +80,16 @@ ExternalProject_Add(
     INSTALL_DIR ${Glog_PREFIX}
     GIT_REPOSITORY "https://github.com/google/glog.git"
     GIT_TAG "v0.6.0"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${Glog_PREFIX} 
-    BUILD_IN_SOURCE 1
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${Glog_PREFIX}
+    BUILD_COMMAND $(CMAKE) --target build
+    INSTALL_COMMAND $(CMAKE) --target install
     LOG_UPDATE ON
     LOG_CONFIGURE ON
     LOG_BUILD ON
     LOG_INSTALL ON
 )
 set(Glog_INCLUDE_DIR ${Glog_PREFIX}/include)
-set(Glog_LIBRARIES ${Glog_PREFIX}/lib/)
+set(Glog_LIBRARIES ${Glog_PREFIX}/lib64/)
 message(STATUS "Using glog from ${Glog_INCLUDE_DIR}")
 
 set(folly_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/external/folly")
