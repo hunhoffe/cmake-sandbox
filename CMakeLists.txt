@@ -16,9 +16,12 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 find_package(gflags REQUIRED)
 find_package(folly REQUIRED)
 
+add_subdirectory(third_party/cxxopts)
+
 add_executable(hello 
     hello.cc
 )
 target_link_libraries(hello
     ${FOLLY_LIBRARIES}
+    cxxopts::cxxopts
 )
