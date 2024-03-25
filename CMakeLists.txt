@@ -32,19 +32,39 @@ ExternalProject_Add(
 set(Boost_INCLUDE_DIR ${boost_PREFIX}/include)
 set(Boost_LIBRARIES ${boost_PREFIX}/lib/)
 set(BOOST_ROOT ${boost_PREFIX})
-message(STATUS "Using Boost from ${Boost_INCLUDE_DIR}/include")
- 
+message(STATUS "Using Boost from ${Boost_INCLUDE_DIR}")
+
+set(DoubleConversion_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/double-conversion)
+ExternalProject_Add(
+    DoubleConversion
+    PREFIX ${DoubleConversion_PREFIX}
+    INSTALL_DIR ${DoubleConversion_PREFIX}
+    GIT_REPOSITORY "https://github.com/google/double-conversion.git"
+    GIT_TAG "v3.3.0"
+    CMAKE_ARGS -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${DoubleConversion_PREFIX} 
+    BUILD_COMMAND $(MAKE)
+    BUILD_IN_SOURCE 1
+    LOG_UPDATE ON
+    LOG_CONFIGURE ON
+    LOG_BUILD ON
+    LOG_INSTALL ON
+)
+set(DoubleConversion_INCLUDE_DIR ${DoubleConversion_PREFIX}/include)
+set(DoubleConversion_LIBRARIES ${DoubleConversion_PREFIX}/lib/)
+message(STATUS "Using DoubleConversion from ${DoubleConversion_INCLUDE_DIR}")
+
 set(folly_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/external/folly")
 ExternalProject_Add(
     folly
     PREFIX ${folly_PREFIX}
     DEPENDS boost
+    DEPENDS DoubleConversion
     INSTALL_DIR ${folly_PREFIX}
     GIT_REPOSITORY "https://github.com/facebook/folly.git"
     GIT_TAG "v2024.03.11.00"
-    CMAKE_ARGS -DBOOST_DEBUG=ON -DBOOST_ROOT=${boost_PREFIX} -DBOOST_INCLUDEDIR=${Boost_INCLUDE_DIR} -DBOOST_LIBRARYDIR=${boost_LIBRARIES} -DBoost_NO_SYSTEM_PATHS=ON -DCMAKE_INSTALL_PREFIX=${folly_PREFIX} -DCMAKE_INCLUDE_PATH=${Boost_INCLUDE_DIR} -DCMAKE_LIBRARY_PATH=${Boost_LIBRARIES}
+    CMAKE_ARGS -DDOUBLE_CONVERSION_LIBRARY=${DoubleConversion_LIBRARIES} -DDOUBLE_CONVERSION_INCLUDE_DIR=${DoubleConversion_INCLUDE_DIR} -DBOOST_DEBUG=ON -DBOOST_ROOT=${boost_PREFIX} -DBOOST_INCLUDEDIR=${Boost_INCLUDE_DIR} -DBOOST_LIBRARYDIR=${boost_LIBRARIES} -DBoost_NO_SYSTEM_PATHS=ON -DCMAKE_INSTALL_PREFIX=${folly_PREFIX} -DCMAKE_INCLUDE_PATH=${Boost_INCLUDE_DIR},${DoubleConversion_INCLUDE_DIR} -DCMAKE_LIBRARY_PATH=${Boost_LIBRARIES},${DoubleConversion_LIBRARIES}
     BUILD_COMMAND $(MAKE)
-    INSTALL_COMMAND sudo $(MAKE) install
+    INSTALL_COMMAND $(MAKE) install
     GIT_PROGRESS TRUE
 )
 set(folly_INCLUDE_DIRS ${folly_PREFIX})
