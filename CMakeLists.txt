@@ -11,12 +11,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 find_package(gflags REQUIRED)
-find_package(folly REQUIRED)
-
-add_subdirectory(third_party/cxxopts)
-# add_subdirectory(third_party/abseil-cpp)
-
 include(FetchContent)
+
+find_package(folly REQUIRED)
+add_subdirectory(third_party/cxxopts)
+
 set(ABSL_ENABLE_INSTALL ON) # bug fix: https://stackoverflow.com/questions/76697852/using-fetchcontent-to-retrieve-protobuf-and-grpc-to-compile-during-build-hermet
 FetchContent_Declare(
   gRPC
@@ -78,7 +77,7 @@ add_executable(hello
     hello.cc
 )
 target_link_libraries(hello
-    ${FOLLY_LIBRARIES}
+    Folly::folly
     cxxopts::cxxopts
     absl::flat_hash_map
     grpc++

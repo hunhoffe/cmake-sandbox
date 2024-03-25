@@ -19,14 +19,24 @@ function Install_Ubuntu_Dependencies()
 	sudo apt install -y python3-dev
 	sudo apt install -y libevent-dev
 	sudo apt install -y libfmt-dev
-	sudo apt install -y libboost-dev
+	sudo apt install -y libboost-all-dev
 	sudo apt install -y libdouble-conversion-dev
 	sudo apt install -y libgflags-dev libgoogle-glog-dev
-	sudo apt install -y folly-dev
+
+	# for folly
+	sudo apt install -y libssl-dev libfmt-dev pkg-config
 
 	# for grpc
 	sudo apt install -y libsystemd-dev
 	sudo apt install -y protobuf-compiler
+	
+	# install folly manually
+	cd third_party
+	git clone --depth 1 --branch v2024.03.11.00 https://github.com/facebook/folly.git
+	cd folly/build
+	cmake ..
+	sudo cmake --build . --target install
+	cd ../..
 }
 
 function Install_RHEL_Dependencies()
@@ -49,10 +59,8 @@ function Install_RHEL_Dependencies()
 
 function Download_Dependency_Source_Code()
 {
-	mkdir third_party
 	cd third_party
 	git clone --depth 1 --branch v3.2.0 https://github.com/jarro2783/cxxopts
-	git clone --depth 1 --branch 20240116.1 https://github.com/abseil/abseil-cpp.git
 	cd ..
 }
 
@@ -70,6 +78,8 @@ if $DO_CLEAN; then
 else
 	echo "Not cleaning artifacts from prevous setup/build"
 fi
+
+mkdir third_party
 
 MY_DISTRO=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 echo "Distro: $MY_DISTRO"
