@@ -53,16 +53,37 @@ set(DoubleConversion_INCLUDE_DIR ${DoubleConversion_PREFIX}/include)
 set(DoubleConversion_LIBRARIES ${DoubleConversion_PREFIX}/lib/)
 message(STATUS "Using DoubleConversion from ${DoubleConversion_INCLUDE_DIR}")
 
+set(Gflags_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/gflags)
+ExternalProject_Add(
+    Gflags
+    PREFIX ${Gflags_PREFIX}
+    INSTALL_DIR ${Gflags_PREFIX}
+    GIT_REPOSITORY "https://github.com/gflags/gflags.git"
+    GIT_TAG "v2.2.0"
+    CMAKE_ARGS -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${Gflags_PREFIX} 
+    BUILD_COMMAND $(MAKE)
+    INSTALL_COMMAND $(MAKE) install
+    BUILD_IN_SOURCE 1
+    LOG_UPDATE ON
+    LOG_CONFIGURE ON
+    LOG_BUILD ON
+    LOG_INSTALL ON
+)
+set(Gflags_INCLUDE_DIR ${Gflags_PREFIX}/include)
+set(Gflags_LIBRARIES ${Gflags_PREFIX}/lib/)
+message(STATUS "Using gflags from ${Gflags_INCLUDE_DIR}")
+
 set(folly_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/external/folly")
 ExternalProject_Add(
     folly
     PREFIX ${folly_PREFIX}
     DEPENDS boost
     DEPENDS DoubleConversion
+    DEPENDS Gflags
     INSTALL_DIR ${folly_PREFIX}
     GIT_REPOSITORY "https://github.com/facebook/folly.git"
     GIT_TAG "v2024.03.11.00"
-    CMAKE_ARGS -DDOUBLE_CONVERSION_LIBRARY=${DoubleConversion_LIBRARIES} -DDOUBLE_CONVERSION_INCLUDE_DIR=${DoubleConversion_INCLUDE_DIR} -DBOOST_DEBUG=ON -DBOOST_ROOT=${boost_PREFIX} -DBOOST_INCLUDEDIR=${Boost_INCLUDE_DIR} -DBOOST_LIBRARYDIR=${boost_LIBRARIES} -DBoost_NO_SYSTEM_PATHS=ON -DCMAKE_INSTALL_PREFIX=${folly_PREFIX} -DCMAKE_INCLUDE_PATH=${Boost_INCLUDE_DIR},${DoubleConversion_INCLUDE_DIR} -DCMAKE_LIBRARY_PATH=${Boost_LIBRARIES},${DoubleConversion_LIBRARIES}
+    CMAKE_ARGS -DLIBGFLAGS_LIBRARY=${Gflags_LIBRARIES} -DLIBGFLAGS_INCLUDE_DIR=${Gflags_INCLUDE_DIR} -DDOUBLE_CONVERSION_LIBRARY=${DoubleConversion_LIBRARIES} -DDOUBLE_CONVERSION_INCLUDE_DIR=${DoubleConversion_INCLUDE_DIR} -DBOOST_DEBUG=ON -DBOOST_ROOT=${boost_PREFIX} -DBOOST_INCLUDEDIR=${Boost_INCLUDE_DIR} -DBOOST_LIBRARYDIR=${boost_LIBRARIES} -DBoost_NO_SYSTEM_PATHS=ON -DCMAKE_INSTALL_PREFIX=${folly_PREFIX} -DCMAKE_INCLUDE_PATH=${Boost_INCLUDE_DIR},${DoubleConversion_INCLUDE_DIR},${Gflags_INCLUDE_DIR} -DCMAKE_LIBRARY_PATH=${Boost_LIBRARIES},${DoubleConversion_LIBRARIES},${Gflags_LIBRARIES}
     BUILD_COMMAND $(MAKE)
     INSTALL_COMMAND $(MAKE) install
     GIT_PROGRESS TRUE
