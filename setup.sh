@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 rm -rf build
 rm -rf third_party
 
