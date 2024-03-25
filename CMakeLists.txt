@@ -20,11 +20,11 @@ set(boost_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/boost)
 ExternalProject_Add(
     boost
     PREFIX ${boost_PREFIX}
-    URL "http://netcologne.dl.sourceforge.net/project/boost/boost/1.69.0/boost_1_69_0.tar.gz"
-    URL_MD5 "b50944c0c13f81ce2c006802a1186f5a"
-    CONFIGURE_COMMAND ${boost_PREFIX}/src/boost/bootstrap.sh --prefix=${boost_PREFIX}
-    BUILD_COMMAND ./bjam link=static cxxflags='-fPIC'
-    INSTALL_COMMAND ./bjam link=static install
+    URL "https://boostorg.jfrog.io/artifactory/main/release/1.84.0/source/boost_1_84_0.tar.gz"
+    URL_MD5 "ae3f48777db74c0309b49becc2eddada"
+    CONFIGURE_COMMAND ${boost_PREFIX}/src/boost/bootstrap.sh --with-libraries=serialization,filesystem,system,program_options,iostreams,regex --prefix=${boost_PREFIX}
+    BUILD_COMMAND ./b2 link=static cxxflags='-fPIC' --prefix=${boost_PREFIX}
+    INSTALL_COMMAND ./b2 link=static install --prefix=${boost_PREFIX}
     BUILD_IN_SOURCE 1
     LOG_UPDATE ON
     LOG_CONFIGURE ON
