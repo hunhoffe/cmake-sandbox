@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+service Hello {
+    // Perform a health check on another broker
+    rpc HandleHealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+/// Empty request for now
+message HealthCheckRequest {}
+
+/// Empty response for now
+message HealthCheckResponse {}

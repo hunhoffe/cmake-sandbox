@@ -13,7 +13,7 @@ sudo dnf install -y folly-devel
 
 # for grpc
 sudo dnf install -y systemd-devel
-#sudo dnf install -y protobuf-devel protobuf-lite-devel
+sudo dnf install -y protobuf-devel protobuf-lite-devel
 
 mkdir third_party
 cd third_party

@@ -26,18 +26,53 @@ FetchContent_Declare(
 set(FETCHCONTENT_QUIET OFF)
 FetchContent_MakeAvailable(gRPC)
 
-add_library(helloproto OBJECT "${CMAKE_CURRENT_LIST_DIR}/helloworld.proto")
-target_link_libraries(helloproto PUBLIC protobuf::libprotobuf)
-set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
-target_include_directories(helloproto PUBLIC "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>")
+set(_PROTOBUF_LIBPROTOBUF libprotobuf)
+set(_REFLECTION grpc++_reflection)
+set(_ORCA_SERVICE grpcpp_orca_service)
+if(CMAKE_CROSSCOMPILING)
+  find_program(_PROTOBUF_PROTOC protoc)
+else()
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+endif()
+set(_GRPC_GRPCPP grpc++)
+if(CMAKE_CROSSCOMPILING)
+  find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+else()
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:grpc_cpp_plugin>)
+endif()
+find_package(Protobuf REQUIRED)
 
-protobuf_generate(
-    TARGET helloproto
-    LANGUAGE grpc
-    GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
-    PLUGIN "protoc-gen-grpc=$<TARGET_FILE:grpc_cpp_plugin>"
-    IMPORT_DIRS ${PROTO_IMPORT_DIRS}
-    PROTOC_OUT_DIR "${PROTO_BINARY_DIR}")
+# Proto file
+get_filename_component(hello_proto "hello.proto" ABSOLUTE)
+get_filename_component(hello_proto_path "${hello_proto}" PATH)
+
+# Generated sources
+set(hello_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/hello.pb.cc")
+set(hello_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/hello.pb.h")
+set(hello_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/hello.grpc.pb.cc")
+set(hello_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/hello.grpc.pb.h")
+add_custom_command(
+      OUTPUT "${hello_proto_srcs}" "${hello_proto_hdrs}" "${hello_grpc_srcs}" "${hello_grpc_hdrs}"
+      COMMAND ${_PROTOBUF_PROTOC}
+      ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+        -I "${hello_proto_path}"
+        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+        "${hello_proto}"
+      DEPENDS "${hello_proto}")
+
+# Include generated *.pb.h files
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+
+add_library(hello_grpc_proto
+  ${hello_grpc_srcs}
+  ${hello_grpc_hdrs}
+  ${hello_proto_srcs}
+  ${hello_proto_hdrs})
+target_link_libraries(hello_grpc_proto
+  ${_REFLECTION}
+  ${_GRPC_GRPCPP}
+  ${_PROTOBUF_LIBPROTOBUF})
 
 add_executable(hello 
     hello.cc
@@ -47,5 +82,5 @@ target_link_libraries(hello
     cxxopts::cxxopts
     absl::flat_hash_map
     grpc++
-    helloproto
+    hello_grpc_proto
 )

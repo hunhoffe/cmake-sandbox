@@ -3,7 +3,7 @@
 #include <cxxopts.hpp>
 #include <absl/container/flat_hash_map.h>
 #include <grpcpp/grpcpp.h>
-#include <helloproto.grpc.pb.h>
+#include <hello.grpc.pb.h>
 
 int main(int argc, char* argv[]) {
     folly::MPMCQueue<uint> *q = new folly::MPMCQueue<uint>(10);
