@@ -50,7 +50,7 @@ ExternalProject_Add(
     LOG_INSTALL ON
 )
 set(DoubleConversion_INCLUDE_DIR ${DoubleConversion_PREFIX}/include)
-set(DoubleConversion_LIBRARIES ${DoubleConversion_PREFIX}/lib/)
+set(DoubleConversion_LIBRARIES ${DoubleConversion_PREFIX}/lib64/)
 message(STATUS "Using DoubleConversion from ${DoubleConversion_INCLUDE_DIR}")
 
 set(Gflags_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/gflags)
@@ -77,12 +77,11 @@ set(Glog_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/glog)
 ExternalProject_Add(
     Glog
     PREFIX ${Glog_PREFIX}
+    DEPENDS Gflags
     INSTALL_DIR ${Glog_PREFIX}
     GIT_REPOSITORY "https://github.com/google/glog.git"
     GIT_TAG "v0.6.0"
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${Glog_PREFIX}
-    BUILD_COMMAND $(CMAKE) --target build
-    INSTALL_COMMAND $(CMAKE) --target install
     LOG_UPDATE ON
     LOG_CONFIGURE ON
     LOG_BUILD ON
@@ -92,6 +91,25 @@ set(Glog_INCLUDE_DIR ${Glog_PREFIX}/include)
 set(Glog_LIBRARIES ${Glog_PREFIX}/lib64/)
 message(STATUS "Using glog from ${Glog_INCLUDE_DIR}")
 
+set(fmt_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/fmt)
+ExternalProject_Add(
+    fmt
+    PREFIX ${fmt_PREFIX}
+    INSTALL_DIR ${fmt_PREFIX}
+    GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
+    GIT_TAG "10.2.1"
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${fmt_PREFIX} -DBUILD_SHARED_LIBS=TRUE
+    LOG_UPDATE ON
+    LOG_CONFIGURE ON
+    LOG_BUILD ON
+    LOG_INSTALL ON
+)
+set(fmt_INCLUDE_DIR ${fmt_PREFIX}/include)
+set(fmt_LIBRARIES ${fmt_PREFIX}/lib64/)
+message(STATUS "Using fmt from ${fmt_INCLUDE_DIR}")
+
+
+
 set(folly_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/external/folly")
 ExternalProject_Add(
     folly
@@ -100,10 +118,11 @@ ExternalProject_Add(
     DEPENDS DoubleConversion
     DEPENDS Gflags
     DEPENDS Glog
+    DEPENDS fmt
     INSTALL_DIR ${folly_PREFIX}
     GIT_REPOSITORY "https://github.com/facebook/folly.git"
     GIT_TAG "v2024.03.11.00"
-    CMAKE_ARGS -DGLOG_LIBRARY=${Glog_LIBRARIES} -DGLOG_INCLUDE_DIR=${Glog_INCLUDE_DIR} -DLIBGFLAGS_LIBRARY=${Gflags_LIBRARIES} -DLIBGFLAGS_INCLUDE_DIR=${Gflags_INCLUDE_DIR} -DDOUBLE_CONVERSION_LIBRARY=${DoubleConversion_LIBRARIES} -DDOUBLE_CONVERSION_INCLUDE_DIR=${DoubleConversion_INCLUDE_DIR} -DBOOST_DEBUG=ON -DBOOST_ROOT=${boost_PREFIX} -DBOOST_INCLUDEDIR=${Boost_INCLUDE_DIR} -DBOOST_LIBRARYDIR=${boost_LIBRARIES} -DBoost_NO_SYSTEM_PATHS=ON -DCMAKE_INSTALL_PREFIX=${folly_PREFIX} -DCMAKE_INCLUDE_PATH=${Boost_INCLUDE_DIR},${DoubleConversion_INCLUDE_DIR},${Gflags_INCLUDE_DIR} -DCMAKE_LIBRARY_PATH=${Boost_LIBRARIES},${DoubleConversion_LIBRARIES},${Gflags_LIBRARIES}
+    CMAKE_ARGS -DLIBFMT_LIBRARY=${fmt_LIBRARIES}/libfmt.so -DLIBFMT_INCLUDE_DIR=${fmt_INCLUDE_DIR} -DGLOG_LIBRARY=${Glog_LIBRARIES} -DGLOG_INCLUDE_DIR=${Glog_INCLUDE_DIR} -DLIBGFLAGS_LIBRARY=${Gflags_LIBRARIES} -DLIBGFLAGS_INCLUDE_DIR=${Gflags_INCLUDE_DIR} -DDOUBLE_CONVERSION_LIBRARY=${DoubleConversion_LIBRARIES} -DDOUBLE_CONVERSION_INCLUDE_DIR=${DoubleConversion_INCLUDE_DIR} -DBOOST_DEBUG=ON -DBOOST_ROOT=${boost_PREFIX} -DBOOST_INCLUDEDIR=${Boost_INCLUDE_DIR} -DBOOST_LIBRARYDIR=${boost_LIBRARIES} -DBoost_NO_SYSTEM_PATHS=ON -DCMAKE_INSTALL_PREFIX=${folly_PREFIX} -DCMAKE_INCLUDE_PATH=${Boost_INCLUDE_DIR},${DoubleConversion_INCLUDE_DIR},${Gflags_INCLUDE_DIR},${Glog_INCLUDE_DIR},${fmt_LIBRARIES} -DCMAKE_LIBRARY_PATH=${Boost_LIBRARIES},${DoubleConversion_LIBRARIES},${Gflags_LIBRARIES},${Glog_LIBRARIES},${fmt_LIBRARIES}
     BUILD_COMMAND $(MAKE)
     INSTALL_COMMAND $(MAKE) install
     GIT_PROGRESS TRUE
