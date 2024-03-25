@@ -30,7 +30,7 @@ ExternalProject_Add(
     LOG_INSTALL ON
 )
 set(Boost_INCLUDE_DIR ${boost_PREFIX}/include)
-set(Boost_LIBRARIES ${boost_PREFIX}/lib/)
+set(Boost_LIBRARY_DIR ${boost_PREFIX}/lib)
 set(BOOST_ROOT ${boost_PREFIX})
 message(STATUS "Using Boost from ${Boost_INCLUDE_DIR}")
 
@@ -50,7 +50,7 @@ ExternalProject_Add(
     LOG_INSTALL ON
 )
 set(DoubleConversion_INCLUDE_DIR ${DoubleConversion_PREFIX}/include)
-set(DoubleConversion_LIBRARIES ${DoubleConversion_PREFIX}/lib64/)
+set(DoubleConversion_LIBRARY_DIR ${DoubleConversion_PREFIX}/lib64)
 message(STATUS "Using DoubleConversion from ${DoubleConversion_INCLUDE_DIR}")
 
 set(Gflags_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/gflags)
@@ -70,7 +70,7 @@ ExternalProject_Add(
     LOG_INSTALL ON
 )
 set(Gflags_INCLUDE_DIR ${Gflags_PREFIX}/include)
-set(Gflags_LIBRARIES ${Gflags_PREFIX}/lib/)
+set(Gflags_LIBRARY_DIR ${Gflags_PREFIX}/lib/)
 message(STATUS "Using gflags from ${Gflags_INCLUDE_DIR}")
 
 set(Glog_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/glog)
@@ -88,7 +88,7 @@ ExternalProject_Add(
     LOG_INSTALL ON
 )
 set(Glog_INCLUDE_DIR ${Glog_PREFIX}/include)
-set(Glog_LIBRARIES ${Glog_PREFIX}/lib64/)
+set(Glog_LIBRARY_DIR ${Glog_PREFIX}/lib64)
 message(STATUS "Using glog from ${Glog_INCLUDE_DIR}")
 
 set(fmt_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/external/fmt)
@@ -105,10 +105,8 @@ ExternalProject_Add(
     LOG_INSTALL ON
 )
 set(fmt_INCLUDE_DIR ${fmt_PREFIX}/include)
-set(fmt_LIBRARIES ${fmt_PREFIX}/lib64/)
+set(fmt_LIBRARY_DIR ${fmt_PREFIX}/lib64)
 message(STATUS "Using fmt from ${fmt_INCLUDE_DIR}")
-
-
 
 set(folly_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/external/folly")
 ExternalProject_Add(
@@ -122,13 +120,29 @@ ExternalProject_Add(
     INSTALL_DIR ${folly_PREFIX}
     GIT_REPOSITORY "https://github.com/facebook/folly.git"
     GIT_TAG "v2024.03.11.00"
-    CMAKE_ARGS -DLIBFMT_LIBRARY=${fmt_LIBRARIES}/libfmt.so -DLIBFMT_INCLUDE_DIR=${fmt_INCLUDE_DIR} -DGLOG_LIBRARY=${Glog_LIBRARIES} -DGLOG_INCLUDE_DIR=${Glog_INCLUDE_DIR} -DLIBGFLAGS_LIBRARY=${Gflags_LIBRARIES} -DLIBGFLAGS_INCLUDE_DIR=${Gflags_INCLUDE_DIR} -DDOUBLE_CONVERSION_LIBRARY=${DoubleConversion_LIBRARIES} -DDOUBLE_CONVERSION_INCLUDE_DIR=${DoubleConversion_INCLUDE_DIR} -DBOOST_DEBUG=ON -DBOOST_ROOT=${boost_PREFIX} -DBOOST_INCLUDEDIR=${Boost_INCLUDE_DIR} -DBOOST_LIBRARYDIR=${boost_LIBRARIES} -DBoost_NO_SYSTEM_PATHS=ON -DCMAKE_INSTALL_PREFIX=${folly_PREFIX} -DCMAKE_INCLUDE_PATH=${Boost_INCLUDE_DIR},${DoubleConversion_INCLUDE_DIR},${Gflags_INCLUDE_DIR},${Glog_INCLUDE_DIR},${fmt_LIBRARIES} -DCMAKE_LIBRARY_PATH=${Boost_LIBRARIES},${DoubleConversion_LIBRARIES},${Gflags_LIBRARIES},${Glog_LIBRARIES},${fmt_LIBRARIES}
+    CMAKE_ARGS "\
+        -DLIBFMT_LIBRARY=${fmt_LIBRARY_DIR}/libfmt.so \
+        -DLIBFMT_INCLUDE_DIR=${fmt_INCLUDE_DIR} \
+        -DLIBGFLAGS_LIBRARY=${Gflags_LIBRARY_DIR} \
+        -DLIBGFLAGS_INCLUDE_DIR=${Gflags_INCLUDE_DIR} \
+        -DDOUBLE_CONVERSION_LIBRARY=${DoubleConversion_LIBRARY_DIR}/libdouble-conversion.so \
+        -DDOUBLE_CONVERSION_INCLUDE_DIR=${DoubleConversion_INCLUDE_DIR} \
+        -DGLOG_LIBRARY=${Glog_LIBRARY_DIR}/libglog.so \
+        -DGLOG_INCLUDE_DIR=${Glog_INCLUDE_DIR} \
+        -DBOOST_DEBUG=ON \
+        -DBOOST_ROOT=${boost_PREFIX} \
+        -DBOOST_INCLUDEDIR=${Boost_INCLUDE_DIR} \
+        -DBOOST_LIBRARYDIR=${boost_LIBRARY_DIR} \
+        -DBoost_NO_SYSTEM_PATHS=ON \
+        -DCMAKE_INSTALL_PREFIX=${folly_PREFIX} \
+        -DCMAKE_INCLUDE_PATH=${Boost_INCLUDE_DIR},${DoubleConversion_INCLUDE_DIR},${Gflags_INCLUDE_DIR},${Glog_INCLUDE_DIR},${fmt_INCLUDE_DIR} \
+        -DCMAKE_LIBRARY_PATH=${Boost_LIBRARY_DIR},${DoubleConversion_LIBRARY_DIR},${Gflags_LIBRARY_DIR},${Glog_LIBRARY_DIR},${fmt_LIBRARY_DIR}"
     BUILD_COMMAND $(MAKE)
     INSTALL_COMMAND $(MAKE) install
     GIT_PROGRESS TRUE
 )
 set(folly_INCLUDE_DIRS ${folly_PREFIX})
-set(folly_LIBRARIES ${folly_PREFIX}/installed/folly/lib/libfolly.a)
+set(folly_LIBRARY_DIR ${folly_PREFIX}/installed/folly/lib/libfolly.a)
 message(STATUS "Using folly from ${folly_INCLUDE_DIRS}/include")
 
 add_executable(hello 
