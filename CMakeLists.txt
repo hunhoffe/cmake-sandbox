@@ -13,22 +13,12 @@ set(CMAKE_CXX_FLAGS "-Wall -O3")
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-set(folly_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/external/folly")
-ExternalProject_Add(
-    folly
-    PREFIX ${folly_PREFIX}
-    INSTALL_DIR ${folly_PREFIX}
-    GIT_REPOSITORY "https://github.com/facebook/folly.git"
-    GIT_TAG "v2024.03.11.00"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${folly_PREFIX}
-    BUILD_COMMAND $(MAKE)
-    INSTALL_COMMAND $(MAKE) install
-    GIT_PROGRESS TRUE
-)
-set(folly_INCLUDE_DIRS ${folly_PREFIX})
-set(folly_LIBRARY_DIR ${folly_PREFIX}/installed/folly/lib/libfolly.a)
-message(STATUS "Using folly from ${folly_INCLUDE_DIRS}/include")
+find_package(gflags REQUIRED)
+find_package(folly REQUIRED)
 
 add_executable(hello 
     hello.cc
+)
+target_link_libraries(hello
+    ${FOLLY_LIBRARIES}
 )

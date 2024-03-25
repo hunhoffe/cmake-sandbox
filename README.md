@@ -8,4 +8,5 @@ sudo dnf install -y fmt fmt-devel
 sudo dnf install -y boost boost-devel
 sudo dnf install -y double-conversion double-conversion-devel
 sudo dnf install -y gflags gflags-devel glog glog-devel
+sudo dnf install -y folly-devel
 ```
