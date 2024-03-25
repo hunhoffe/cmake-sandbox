@@ -17,6 +17,7 @@ find_package(gflags REQUIRED)
 find_package(folly REQUIRED)
 
 add_subdirectory(third_party/cxxopts)
+add_subdirectory(third_party/abseil-cpp)
 
 add_executable(hello 
     hello.cc
@@ -24,4 +25,5 @@ add_executable(hello
 target_link_libraries(hello
     ${FOLLY_LIBRARIES}
     cxxopts::cxxopts
+    absl::flat_hash_map 
 )
